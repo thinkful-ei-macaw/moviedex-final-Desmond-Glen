@@ -25,16 +25,37 @@ function validateBearerToken(req, res, next) {
 
 
 function handleGetTypes(req, res) {
-    let genre = req.query.genre
-    console.log(genre)
+
+    let { genre, country, avg_vote } = req.query
+    let key, val;
+    for (let k in req.query) {
+        key = k
+        val = req.query[k]
+    }
+    console.log(key)
+    console.log(val)
+    let filterData = [...store];
+
+    // val = val.split(" ").map(w => w[0].toUpperCase).join(" ")
+    // val.charAt(0).toUpperCase() + val.slice(1)
+    let wordArray = val.split(" ");
+    for (let i = 0; i < wordArray.length; i++) {
+        wordArray[i] = wordArray[i].charAt(0).toUpperCase() + wordArray[i].slice(1)
+    }
+
+    val = wordArray.join(" ")
 
 
-    return res.json(store)
+
+    filterData = filterData.filter(data => data[key] === val)
+
+    // let genre = req.query.genre
+    // console.log(avg_vote)
+    // console.log(country)
+    // console.log(genre)
+    return res.json(filterData)
 }
 
-function handleGetMovies(req, res) {
-    res.send('Hello Movies')
-}
 
 app.get('/movie', validateBearerToken, handleGetTypes)
 
