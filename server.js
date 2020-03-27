@@ -5,11 +5,13 @@ const morgan = require('morgan')
 console.log(process.env.API_TOKEN)
 const app = express()
 const store = require('./store')
+const cors = require('cors')
 
-const API_TOKEN = process.env.API_TOKEN
+// const API_TOKEN = process.env.API_TOKEN
 
 
 app.use(morgan('dev'))
+app.use(cors())
 
 function validateBearerToken(req, res, next) {
     const apiToken = process.env.API_TOKEN
@@ -50,6 +52,7 @@ app.get('/movie', validateBearerToken, handleGetTypes)
 
 
 const PORT = 8000
+// const PORT = process.env.port || 8000
 
 app.listen(PORT, () => {
     console.log(`Server listening at http://localhost:${PORT}`)
