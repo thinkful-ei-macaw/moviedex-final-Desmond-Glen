@@ -1,5 +1,4 @@
-require('dotenv').config();
-
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 console.log(process.env.API_TOKEN)
@@ -7,14 +6,13 @@ const app = express()
 const store = require('./store')
 const cors = require('cors')
 
-// const API_TOKEN = process.env.API_TOKEN
 
 
 app.use(morgan('dev'))
 app.use(cors())
 
 function validateBearerToken(req, res, next) {
-    const apiToken = process.env.API_TOKEN
+    const apiToken = process.env.API_KEY
     const authToken = req.get('Authorization')
 
     if (!authToken || authToken.split(' ')[1] !== apiToken) {
@@ -29,20 +27,27 @@ function validateBearerToken(req, res, next) {
 function handleGetTypes(req, res) {
 
     let filterData = [...store];
+    console.log(req.query)
 
-    // When searching by average vote, users are searching for Movies with an avg_vote that is greater than or equal to the supplied number.
-
-    for (let key in req.query) {
-        console.log(key, filterData.length)
-
-        if (key === 'avg_vote') {
-            filterData = filterData.filter(movie => movie.avg_vote >= parseFloat(req.query.avg_vote))
-            console.log("After vote filtering", filterData.length)
-        } else {
-            filterData = filterData.filter(movie => movie[key].toLowerCase() === req.query[key].toLowerCase())
-        }
+    if (!req.query.genre && !req.query.avg_vote && !req.query.country) {
+        return res.status(404).json({ error: 'Not Found' })
     }
-    //variable country is identical to req.query["country"]
+
+    if (req.query.genre) {
+        filterData = filterData.filter(movie =>
+            movie.genre.toLowerCase().includes(req.query.genre.toLowerCase()))
+    };
+
+    if (req.query.country) {
+        filterData = filterData.filter(movie =>
+            movie.country.toLocaleLowerCase().includes(req.query.country.toLowerCase()))
+    }
+
+    if (req.query.avg_vote) {
+        filterData = filterData.filter(movie =>
+            Number(movie.avg_vote) >= Number(req.query.avg_vote))
+    }
+
 
     return res.json(filterData)
 }
